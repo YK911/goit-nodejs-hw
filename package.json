@@ -1,0 +1,29 @@
+{
+  "name": "01-node-basics",
+  "version": "1.0.0",
+  "description": "module 01 practice",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YK911/goit-nodejs-hw.git"
+  },
+  "keywords": [
+    "NodeJS",
+    "npm",
+    "JavaScript"
+  ],
+  "author": "Yaroslav Kosytsia <jaroslavkositsa@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YK911/goit-nodejs-hw/issues"
+  },
+  "homepage": "https://github.com/YK911/goit-nodejs-hw#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.3",
+    "yargs": "^15.3.1"
+  }
+}
