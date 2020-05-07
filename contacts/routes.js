@@ -3,17 +3,18 @@ const {
   listContacts,
   getContactById,
   validateContactsData,
+  validateId,
   addContact,
   removeContact,
-  updateContact
+  updateContact,
 } = require('./controllers');
 
 const router = Router();
 
-router.get('/api/contacts', listContacts);
-router.get('/api/contacts/:contactId', getContactById);
-router.post('/api/contacts', validateContactsData, addContact);
-router.delete('/api/contacts/:contactId', removeContact);
-router.patch('/api/contacts/:contactId', updateContact);
+router.get('/', listContacts);
+router.get('/:id', validateId, getContactById);
+router.post('/add', addContact);
+router.delete('/remove/:id', validateId, removeContact);
+router.patch('/:id', validateId, validateContactsData, updateContact);
 
 module.exports = router;
