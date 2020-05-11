@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const contactsRoutes = require("./contacts/routes");
+const usersRoutes = require('./users/routes')
 const mongoose = require("mongoose");
 require('dotenv').config();
 
@@ -9,6 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(cors({ origin: "http://localhost:8080" }));
 app.use(contactsRoutes);
+app.use(usersRoutes)
 
 async function start() {
   try {

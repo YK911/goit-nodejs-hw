@@ -7,5 +7,3 @@ const contact = new Schema({
 });
 
 module.exports = model("Contact", contact);
-
-
