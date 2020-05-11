@@ -9,6 +9,9 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({ origin: "http://localhost:8080" }));
+app.use(express.static('public'))
+app.use(express.static('tmp'))
+
 app.use(contactsRoutes);
 app.use(usersRoutes)
 

@@ -1,7 +1,16 @@
 const userModel = require('../models/users');
+const fs = require('fs');
+const {promises: fsPromises} = require('fs');
+const path = require('path');
 const Joi = require('joi');
 const bcypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const imagemin = require('imagemin');
+const imageminJpegtran = require('imagemin-jpegtran');
+const imageminPngquant = require('imagemin-pngquant');
+const Avatar = require('avatar-builder');
+const avatar = Avatar.identiconBuilder(128);
+const shortId = require('shortid');
 
 const saltRounds = 3;
 
@@ -14,6 +23,10 @@ async function createUser(req, res, next) {
     }
 
     const hashPassword = await bcypt.hash(password, saltRounds);
+    const newAvatar = `avatar_${shortId()}.png`;
+    avatar
+      .create('gabriel')
+      .then(buffer => fs.writeFileSync(`./tmp/${newAvatar}`, buffer));
     const newUser = await userModel.create({
       email,
       password: hashPassword,
@@ -25,7 +38,8 @@ async function createUser(req, res, next) {
         : res.status(201).json({
             user: {
               email: savedUser.email,
-              subscription: savedUser.subscription
+              subscription: savedUser.subscription,
+              avatarURL: savedUser.avatarURL
             }
           });
     });
@@ -52,7 +66,8 @@ async function login(req, res, next) {
       token,
       user: {
         email: user.email,
-        subscription: user.subscription
+        subscription: user.subscription,
+        avatarURL: user.avatarURL
       }
     });
   } catch (err) {
@@ -132,6 +147,43 @@ async function getUser(req, res, next) {
   }
 }
 
+async function minifyImg(req, res, next) {
+  try {
+    const parsedUrl = req.user.avatarURL.split('/');
+    const oldAvatar = parsedUrl[parsedUrl.length - 1];
+    await fsPromises.unlink(`tmp/${oldAvatar}`);
+    
+    await imagemin([`tmp/${req.file.filename}`], {
+      destination: ('public/images'),
+      plugins: [
+        imageminJpegtran(),
+        imageminPngquant({
+          quality: [0.6, 0.8]
+        })
+      ]
+    });
+
+    const { filename, path: tmpPath } = req.file;
+    req.file.path = path.join(__dirname, '..', 'public', 'images', filename);
+    req.file.destination = path.join(__dirname, '..', 'public', 'images');
+    await fsPromises.unlink(tmpPath);
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function changeAvatar(req, res, next) {
+  try {
+    await userModel.findByIdAndUpdate(
+      req.user._id,
+      { avatarURL: req.file.path }
+    );
+    res.status(201).json({message: 'Avatar changed'});
+  } catch (err) {
+    next(err);
+  }
+}
 
 module.exports = {
   createUser,
@@ -140,5 +192,7 @@ module.exports = {
   validateLogin,
   verifyToken,
   logout,
-  getUser
+  getUser,
+  minifyImg,
+  changeAvatar
 }
