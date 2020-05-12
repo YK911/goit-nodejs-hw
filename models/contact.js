@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const contact = new Schema({
   name: { type: String, required: true },
