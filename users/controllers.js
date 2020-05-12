@@ -11,6 +11,7 @@ const imageminPngquant = require('imagemin-pngquant');
 const Avatar = require('avatar-builder');
 const avatar = Avatar.identiconBuilder(128);
 const shortId = require('shortid');
+const sgMail = require('@sendgrid/mail');
 
 const saltRounds = 3;
 
@@ -23,6 +24,7 @@ async function createUser(req, res, next) {
     }
 
     const hashPassword = await bcypt.hash(password, saltRounds);
+    const otpCode = shortId();
     const newAvatar = `avatar_${shortId()}.png`;
     avatar
       .create('gabriel')
@@ -30,18 +32,21 @@ async function createUser(req, res, next) {
     const newUser = await userModel.create({
       email,
       password: hashPassword,
-      subscription
+      subscription,
+      avatarURL: `http://localhost:3030/${newAvatar}`,
+      otpCode
     });
     await newUser.save((err, savedUser) => {
-      err
-        ? res.status(400).json(err.message)
-        : res.status(201).json({
-            user: {
-              email: savedUser.email,
-              subscription: savedUser.subscription,
-              avatarURL: savedUser.avatarURL
-            }
-          });
+      if (err) {
+        res.status(400).json(err.message);
+      }
+      this.sendEmail(newUser);
+      res
+        .status(201)
+        .json({
+          message:
+            'We sent you a verification email to the email address that you specified at the registration. Please go to your inbox to complete the registration.'
+        });
     });
   } catch (err) {
     next(err);
@@ -185,6 +190,44 @@ async function changeAvatar(req, res, next) {
   }
 }
 
+async function sendEmail(user) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  const msg = {
+    to: user.email,
+    from: "jaroslavkositsa@gmail.com",
+    subject: "Since we can't all win the lottery …",
+    text: `Copy this link to your browser to take your prize: http://localhost:8080/api/users/otp/${user.otpCode}`,
+    html: `Let's click on the following link to take your prize: <a href="http://localhost:8080/api/users/otp/${user.otpCode}">Win a prize!!!</a>`
+  };
+  await sgMail.send(msg);
+}
+
+async function completeRegister(req, res, next) {
+  try {
+    const { otpCode } = req.params;
+    const verifiedUser = await userModel.findOne({ otpCode });
+
+    if (!verifiedUser) {
+      res.status(401).json({ message: 'Verification link expired' });
+    }
+
+    await userModel.findByIdAndUpdate(verifiedUser._id, {
+      registered: true,
+      otpCode: null
+    });
+    res.status(200).json({
+      message: 'Your email was successfully verified',
+      user: {
+        email: verifiedUser.email,
+        subscription: verifiedUser.subscription,
+        avatarURL: verifiedUser.avatarURL,
+        registered: true
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+}
 module.exports = {
   createUser,
   login,
@@ -194,5 +237,7 @@ module.exports = {
   logout,
   getUser,
   minifyImg,
-  changeAvatar
+  changeAvatar,
+  sendEmail,
+  completeRegister
 }

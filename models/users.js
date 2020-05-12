@@ -10,7 +10,9 @@ const userSchema = new mongoose.Schema({
     enum: ["free", "pro", "premium"],
     default: "free"
   },
-  token: String
+  token: String,
+  otpCode: String,
+  registered: { type: Boolean, default: false }
 });
 
 const User = mongoose.model('User', userSchema);

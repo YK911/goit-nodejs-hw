@@ -1,7 +1,7 @@
 {
-  "name": "04-auth",
+  "name": "06-email",
   "version": "1.0.0",
-  "description": "module 04 practice",
+  "description": "module 06 practice",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/YK911/goit-nodejs-hw#readme",
   "dependencies": {
+    "@sendgrid/mail": "^7.1.0",
     "avatar-builder": "^1.0.1",
     "bcrypt": "^4.0.1",
     "cors": "^2.8.5",
