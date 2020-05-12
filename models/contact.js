@@ -6,4 +6,6 @@ const contact = new Schema({
   phone: { type: String, required: true },
 });
 
+contactSchema.plugin(mongoosePaginate);
+
 module.exports = model("Contact", contact);

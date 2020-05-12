@@ -4,8 +4,13 @@ const Joi = require("joi");
 
 async function listContacts(req, res, next) {
   try {
-    const contacts = await Contact.find();
-    res.status(200).json(contacts);
+    const pageOptions = {
+      page: req.query.page || 1,
+      limit: req.query.limit || 2,
+      sort: { name: 1 }
+    };
+    const result = await contactModel.paginate({}, pageOptions); 
+    res.status(200).json(result.docs);
   } catch (err) {
     next(err);
   }
