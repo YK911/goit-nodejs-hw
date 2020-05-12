@@ -1,11 +1,18 @@
-const Contact = require('../models/contact')
-const {Types: { ObjectId }} = require('mongoose');
+const Contact = require("../models/contact");
+const {
+  Types: { ObjectId },
+} = require("mongoose");
 const Joi = require("joi");
 
 async function listContacts(req, res, next) {
   try {
-    const contacts = await Contact.find();
-    res.status(200).json(contacts);
+    const pageOptions = {
+      page: req.query.page || 1,
+      limit: req.query.limit || 2,
+      sort: { name: 1 },
+    };
+    const result = await contactModel.paginate({}, pageOptions);
+    res.status(200).json(result.docs);
   } catch (err) {
     next(err);
   }
@@ -25,13 +32,13 @@ async function getContactById(req, res, next) {
 
 function validateContactsData(req, res, next) {
   if (Object.keys(req.body).length === 0) {
-    res.status(400).json({ message: 'missing fields' });
+    res.status(400).json({ message: "missing fields" });
   }
 
   const schema = Joi.object().keys({
     name: Joi.string(),
     email: Joi.string().email({ minDomainAtoms: 2 }),
-    phone: Joi.string().regex(/^[0-9\- ]{10,20}$/)
+    phone: Joi.string().regex(/^[0-9\- ]{10,20}$/),
   });
 
   const { error, value } = Joi.validate(req.body, schema);
@@ -42,7 +49,6 @@ function validateId(req, res, next) {
   const { id } = req.params;
   ObjectId.isValid(id) ? next() : res.status(400).send();
 }
-
 
 async function addContact(req, res, next) {
   try {
@@ -70,11 +76,9 @@ async function removeContact(req, res, next) {
 async function updateContact(req, res, next) {
   const { id } = req.params;
   try {
-    const updatedContact = await Contact.findByIdAndUpdate(
-      id,
-      req.body,
-      { new: true }
-    );
+    const updatedContact = await Contact.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
     updatedContact
       ? res.status(200).json(updatedContact)
       : res.status(404).send();
@@ -82,7 +86,6 @@ async function updateContact(req, res, next) {
     next(err);
   }
 }
-
 
 module.exports = {
   listContacts,
