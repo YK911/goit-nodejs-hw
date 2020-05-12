@@ -9,7 +9,7 @@ const imagemin = require('imagemin');
 const imageminJpegtran = require('imagemin-jpegtran');
 const imageminPngquant = require('imagemin-pngquant');
 const Avatar = require('avatar-builder');
-const avatar = Avatar.identiconBuilder(128);
+const avatar = Avatar.githubBuilder(128);
 const shortId = require('shortid');
 const sgMail = require('@sendgrid/mail');
 
