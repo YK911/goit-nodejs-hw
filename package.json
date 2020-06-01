@@ -1,8 +1,17 @@
 {
-  "name": "01-node-basics",
+  "name": "02-express",
   "version": "1.0.0",
-  "description": "module 01 practice",
+  "description": "module 02 practice",
   "main": "index.js",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "joi": "^14.3.1",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.3"
+  },
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js"
@@ -21,9 +30,5 @@
   "bugs": {
     "url": "https://github.com/YK911/goit-nodejs-hw/issues"
   },
-  "homepage": "https://github.com/YK911/goit-nodejs-hw#readme",
-  "devDependencies": {
-    "nodemon": "^2.0.3",
-    "yargs": "^15.3.1"
-  }
+  "homepage": "https://github.com/YK911/goit-nodejs-hw#readme"
 }
